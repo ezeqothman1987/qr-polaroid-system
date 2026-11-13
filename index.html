@@ -1,12 +1,143 @@
+
 <!DOCTYPE html>
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Polaroid System</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>QR Polaroid - Connection Test</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    button {
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    pre {
+      padding: 15px;
+      background: #f1f1f1;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  </style>
 </head>
+
 <body>
+
   <h1>QR Polaroid System</h1>
-  <p>Participant App - Under Development</p>
+  <h2>Backend Connection Test</h2>
+
+  <p>
+    Tekan butang untuk menguji sambungan
+    GitHub Pages ke Google Apps Script.
+  </p>
+
+  <button id="testButton">
+    Test Connection
+  </button>
+
+  <h3>Connection Result:</h3>
+  <pre id="result">Belum diuji.</pre>
+
+  <script>
+
+    // ============================================
+    // TETAPAN SAMBUNGAN
+    // ============================================
+
+    // GANTIKAN URL DI BAWAH DENGAN
+    // WEB APP URL /exec ANDA YANG SEBENAR.
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbypWTF9wRt5mCh2D8E4RPFlBXJGnkRHL1df-JAtL39mdTgPdN5aGREtlZhBsxwQSITo/exec";
+
+
+    // ============================================
+    // FUNGSI UJIAN SAMBUNGAN
+    // ============================================
+
+    async function testConnection() {
+
+      const resultBox =
+        document.getElementById("result");
+
+      resultBox.textContent =
+        "Sedang menguji sambungan...";
+
+      try {
+
+        // Hantar GET request ke Apps Script.
+        // Browser akan menguatkuasakan CORS.
+
+        const response = await fetch(API_URL, {
+          method: "GET",
+          mode: "cors",
+          redirect: "follow",
+          cache: "no-store"
+        });
+
+        // Pastikan HTTP response berjaya.
+        if (!response.ok) {
+          throw new Error(
+            "HTTP Error: " + response.status
+          );
+        }
+
+        // Cuba baca respons sebagai JSON.
+        const data = await response.json();
+
+        // Pastikan respons yang diterima betul.
+        if (
+          data.status !== "SUCCESS" ||
+          data.system !== "QR Polaroid System"
+        ) {
+          throw new Error(
+            "Unexpected backend response"
+          );
+        }
+
+        // Paparkan hasil berjaya.
+        resultBox.textContent =
+          "CONNECTION SUCCESS!\n\n" +
+          JSON.stringify(data, null, 2);
+
+      } catch (error) {
+
+        // Paparkan ralat untuk diagnosis.
+        resultBox.textContent =
+          "CONNECTION FAILED\n\n" +
+          error.name + ": " + error.message;
+
+        console.error(
+          "QR Polaroid Connection Error:",
+          error
+        );
+      }
+    }
+
+
+    // ============================================
+    // BUTANG UJIAN
+    // ============================================
+
+    document
+      .getElementById("testButton")
+      .addEventListener(
+        "click",
+        testConnection
+      );
+
+  </script>
+
 </body>
 </html>
