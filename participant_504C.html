@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>QR Polaroid — Peserta</title><style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color-scheme:dark}body{background:#101521;color:#edf1f7;margin:0;padding:28px 16px}.panel{max-width:480px;margin:36px auto;background:#1c2636;border:1px solid #344155;border-radius:18px;padding:26px;box-shadow:0 15px 55px #0004}h1{margin:0 0 8px;font-size:1.6rem}p{line-height:1.55;color:#bec9d8}.muted{font-size:.85rem}.status{padding:13px;border-radius:10px;background:#29364a;margin:18px 0;overflow-wrap:anywhere}.ok{background:#173b30;color:#b5f2d2}.bad{background:#442a30;color:#ffced6}label{display:block;margin:18px 0 8px;font-weight:600}input[type=file]{width:100%;box-sizing:border-box;padding:12px;border:1px dashed #72839a;border-radius:10px}button{background:#a5d8ff;color:#12202f;border:0;border-radius:9px;padding:12px 16px;font-weight:700;cursor:pointer;margin-top:14px}button:disabled{opacity:.45;cursor:not-allowed}img{max-width:100%;max-height:220px;object-fit:contain;border-radius:10px;margin-top:12px}.hidden{display:none}</style></head><body><main class="panel"><h1>📸 QR Polaroid</h1><p>Semak kod QR dan pilih gambar JPEG untuk acara ini.</p><div id="status" class="status" role="status" aria-live="polite">Menunggu semakan QR…</div><div id="picker" class="hidden"><label for="jpeg">Pilih gambar JPEG (maksimum 8 MiB)</label><input id="jpeg" type="file" accept="image/jpeg,.jpg,.jpeg"><p id="fileInfo" class="muted"></p><img id="preview" class="hidden" alt="Pratonton gambar pilihan"><p class="muted">Penghantaran gambar belum diaktifkan pada langkah ini. Tiada fail akan dimuat naik.</p><button id="upload" disabled>Upload JPEG (belum tersedia)</button></div></main><script>
+// ---- TETAPAN: ISIKAN URL WEB APP /exec SAHAJA; JANGAN LETAK SEBARANG SECRET ----
+const WEB_APP_URL = 'PASTE_YOUR_GAS_EXEC_URL_HERE';
+const MAX_JPEG_BYTES = 8 * 1024 * 1024;
+const $ = id => document.getElementById(id);
+const status = (msg,cls='') => { $('status').textContent=msg; $('status').className='status '+cls; };
+let objectUrl=null;
+function clearPreview(){if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}$('preview').removeAttribute('src');$('preview').classList.add('hidden');}
+async function checkQR(){
+  const current=new URL(location.href);
+  const token=current.searchParams.get('qr_token')||'';
+  // Buang token daripada bar alamat selepas ia dibaca untuk mengurangkan kebocoran URL.
+  current.searchParams.delete('qr_token');history.replaceState(null,'',current.pathname+current.search+current.hash);
+  if(!/^[a-f0-9]{64}$/i.test(token)){status('Kod QR tidak sah. Sila imbas semula kod yang diberikan.','bad');return;}
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(WEB_APP_URL)){
+    status('Tetapan Web App belum disediakan oleh urus setia.','bad');return;
+  }
+  try{
+    const res=await fetch(WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},credentials:'omit',body:JSON.stringify({action:'check_qr',qr_token:token})});
+    if(!res.ok)throw new Error('HTTP');
+    const result=await res.json();
+    if(result && result.code==='QR_AVAILABLE' && result.data?.eligible===true){
+      const n=result.data.remaining_uploads;
+      if(!Number.isInteger(n)||n<1)throw new Error('INVALID_RESPONSE');
+      status('QR aktif. Baki kuota: '+n+' gambar.','ok');$('picker').classList.remove('hidden');return;
+    }
+    const messages={INVALID_QR:'Kod QR tidak sah.',QR_INACTIVE:'Kod QR tidak aktif.',EVENT_NOT_STARTED:'Acara belum bermula.',EVENT_ENDED:'Acara telah tamat.',EVENT_INACTIVE:'Acara tidak aktif.',QUOTA_FULL:'Kuota gambar telah penuh.'};
+    status(messages[result?.code]||'Semakan QR tidak dapat diselesaikan. Sila cuba lagi.','bad');
+  }catch(_){status('Sambungan gagal. Sila cuba lagi apabila internet stabil.','bad');}
+}
+$('jpeg').addEventListener('change',async()=>{
+  clearPreview();$('fileInfo').textContent='';const file=$('jpeg').files?.[0];if(!file)return;
+  if(file.size===0||file.size>MAX_JPEG_BYTES){$('fileInfo').textContent='Fail mesti melebihi 0 bytes dan tidak melebihi 8 MiB.';return;}
+  if(file.type!=='image/jpeg'){ $('fileInfo').textContent='Hanya JPEG dibenarkan.';return; }
+  const bytes=new Uint8Array(await file.slice(0,3).arrayBuffer());
+  if(bytes[0]!==0xff||bytes[1]!==0xd8||bytes[2]!==0xff){$('fileInfo').textContent='Kandungan fail bukan JPEG yang sah.';return;}
+  $('fileInfo').textContent='JPEG dipilih: '+(file.size/1048576).toFixed(2)+' MiB. Belum dihantar.';
+  objectUrl=URL.createObjectURL(file);$('preview').src=objectUrl;$('preview').classList.remove('hidden');
+});
+checkQR();
+</script></body></html>
