@@ -45,6 +45,10 @@
   <button id="testButton">
     Test Connection
   </button>
+  
+  <button id="postButton">
+  Test POST Connection
+</button>
 
   <h3>Connection Result:</h3>
   <pre id="result">Belum diuji.</pre>
@@ -136,6 +140,87 @@
         "click",
         testConnection
       );
+
+// ============================================
+// UJIAN POST REQUEST
+// ============================================
+
+async function testPostConnection() {
+
+  const resultBox =
+    document.getElementById("result");
+
+  resultBox.textContent =
+    "Sedang menguji POST request...";
+
+  try {
+
+    // ---- DATA UJIAN ----
+    const payload = {
+      action: "test_post",
+      message: "Hello from GitHub Pages"
+    };
+
+    // ---- HANTAR POST KE APPS SCRIPT ----
+    const response = await fetch(API_URL, {
+      method: "POST",
+      mode: "cors",
+      redirect: "follow",
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    // ---- SEMAK HTTP RESPONSE ----
+    if (!response.ok) {
+      throw new Error(
+        "HTTP Error: " + response.status
+      );
+    }
+
+    // ---- BACA JSON ----
+    const data = await response.json();
+
+    if (
+      data.status !== "SUCCESS" ||
+      data.message !== "POST request received"
+    ) {
+      throw new Error(
+        "Unexpected POST response: " +
+        JSON.stringify(data)
+      );
+    }
+
+    // ---- PAPARKAN KEJAYAAN ----
+    resultBox.textContent =
+      "POST CONNECTION SUCCESS!\n\n" +
+      JSON.stringify(data, null, 2);
+
+  } catch (error) {
+
+    // ---- PAPARKAN RALAT ----
+    resultBox.textContent =
+      "POST CONNECTION FAILED\n\n" +
+      error.name + ": " + error.message;
+
+    console.error(
+      "POST Connection Error:",
+      error
+    );
+  }
+}
+
+// ============================================
+// AKTIFKAN BUTANG POST
+// ============================================
+
+document
+  .getElementById("postButton")
+  .addEventListener(
+    "click",
+    testPostConnection
+  );
 
   </script>
 
