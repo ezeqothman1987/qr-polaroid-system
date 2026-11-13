@@ -50,6 +50,31 @@
   Test POST Connection
 </button>
 
+<!-- ==========================================
+     JPEG UPLOAD TEST
+========================================== -->
+
+<hr>
+
+<h3>JPEG Upload Test</h3>
+
+<p>
+  Pilih satu gambar JPEG bersaiz
+  maksimum 1 MB.
+</p>
+
+<input
+  type="file"
+  id="jpegFile"
+  accept="image/jpeg"
+>
+
+<p>
+  <button id="uploadButton">
+    Upload Test JPEG
+  </button>
+</p>
+
   <h3>Connection Result:</h3>
   <pre id="result">Belum diuji.</pre>
 
@@ -220,6 +245,129 @@ document
   .addEventListener(
     "click",
     testPostConnection
+  );
+
+// ============================================
+// LANGKAH 2.5 - JPEG UPLOAD TEST
+// ============================================
+
+async function testJpegUpload() {
+
+  const resultBox =
+    document.getElementById("result");
+
+  const fileInput =
+    document.getElementById("jpegFile");
+
+  const uploadButton =
+    document.getElementById("uploadButton");
+
+  const file = fileInput.files[0];
+
+  // ---- SEMAK FAIL DIPILIH ----
+  if (!file) {
+    resultBox.textContent =
+      "Sila pilih gambar JPEG dahulu.";
+    return;
+  }
+
+  // ---- SEMAK JENIS FAIL ----
+  if (file.type !== "image/jpeg") {
+    resultBox.textContent =
+      "Hanya fail JPEG dibenarkan.";
+    return;
+  }
+
+  // ---- SEMAK SAIZ FAIL ----
+  if (file.size > 1048576) {
+    resultBox.textContent =
+      "Gambar melebihi 1 MB.";
+    return;
+  }
+
+  uploadButton.disabled = true;
+
+  resultBox.textContent =
+    "Sedang memuat naik gambar...";
+
+  try {
+
+    // ---- TUKAR FAIL KEPADA BASE64 ----
+    const base64 = await new Promise(
+      (resolve, reject) => {
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = String(reader.result);
+          resolve(result.split(",")[1]);
+        };
+
+        reader.onerror = () => {
+          reject(new Error("File reading failed"));
+        };
+
+        reader.readAsDataURL(file);
+      }
+    );
+
+    // ---- SEDIAKAN DATA UPLOAD ----
+    const payload = {
+      action: "test_upload",
+      image: base64
+    };
+
+    // ---- HANTAR KE APPS SCRIPT ----
+    const response = await fetch(API_URL, {
+      method: "POST",
+      mode: "cors",
+      redirect: "follow",
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        "HTTP Error: " + response.status
+      );
+    }
+
+    const data = await response.json();
+
+    if (data.status !== "SUCCESS") {
+      throw new Error(
+        data.message || "Upload failed"
+      );
+    }
+
+    // ---- PAPARKAN KEPUTUSAN ----
+    resultBox.textContent =
+      "JPEG UPLOAD SUCCESS!\n\n" +
+      JSON.stringify(data, null, 2);
+
+  } catch (error) {
+
+    resultBox.textContent =
+      "JPEG UPLOAD FAILED\n\n" +
+      error.name + ": " + error.message;
+
+    console.error("Upload Error:", error);
+
+  } finally {
+
+    uploadButton.disabled = false;
+  }
+}
+
+
+// ---- AKTIFKAN BUTANG UPLOAD ----
+document
+  .getElementById("uploadButton")
+  .addEventListener(
+    "click",
+    testJpegUpload
   );
 
   </script>
