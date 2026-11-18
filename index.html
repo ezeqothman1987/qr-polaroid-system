@@ -5,14 +5,14 @@
 <body><main class="panel"><h1>📸 QR Polaroid</h1><p>Imbas QR acara, ambil gambar dan semak pratonton sebelum menghantar.</p><div id="status" class="status" role="status" aria-live="polite">Menyemak kod QR…</div>
 <section id="captureArea" class="hidden"><div class="polaroid"><div class="viewport"><video id="camera" autoplay playsinline muted class="hidden"></video><img id="preview" class="hidden" alt="Pratonton gambar JPEG"><div id="cameraHint" class="small" style="padding:25px;text-align:center">Tekan “Buka kamera” untuk mula.</div></div></div>
 <div class="controls"><button id="start">Buka kamera</button><button id="flip" class="secondary" disabled>Tukar kamera</button><button id="snap" disabled>Ambil gambar</button><button id="retake" class="secondary" disabled>Ambil semula</button></div>
-<label for="jpeg">Atau pilih gambar JPEG</label><input id="jpeg" type="file" accept="image/jpeg,.jpg,.jpeg"><p id="fileInfo" class="small" aria-live="polite"></p><p id="uploadNotice" class="small">Penghantaran belum diaktifkan. Gambar hanya dipratonton pada peranti ini.</p><button id="upload" disabled>Hantar gambar (menunggu backend)</button><button id="retry" class="secondary hidden" disabled>Cuba semula penghantaran</button></section>
+<label for="jpeg">Atau pilih gambar JPEG</label><input id="jpeg" type="file" accept="image/jpeg,.jpg,.jpeg"><p id="fileInfo" class="small" aria-live="polite"></p><p id="uploadNotice" class="small">Mod pilot: penghantaran gambar sedang diuji. Gunakan QR pilot sahaja.</p><button id="upload" disabled>Hantar gambar</button><button id="retry" class="secondary hidden" disabled>Cuba semula penghantaran</button></section>
 <canvas id="canvas" class="hidden"></canvas></main>
 <script>
 // ---- KONFIGURASI: URL asal dikekalkan. Jangan letak password atau secret di sini. ----
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbypWTF9wRt5mCh2D8E4RPFlBXJGnkRHL1df-JAtL39mdTgPdN5aGREtlZhBsxwQSITo/exec';
 const MAX_JPEG_BYTES=8*1024*1024;
 // Keselamatan: kekal false sehingga endpoint upload_jpeg LIVE telah diuji dan diluluskan.
-const ENABLE_PUBLIC_JPEG_UPLOAD=false;
+const ENABLE_PUBLIC_JPEG_UPLOAD=true;
 const $=id=>document.getElementById(id);
 let qrToken='',stream=null,facing='environment',selectedBlob=null,objectUrl=null,currentKey=null,uploadBusy=false;
 const status=(msg,cls='')=>{$('status').textContent=msg;$('status').className='status '+cls;};
