@@ -46007,7 +46007,7 @@ function adminWithLock536_(callback) {
 /* Manual setup ONLY. Put ADMIN_BOOTSTRAP_PASSWORD_536 in Script Properties,
    run setupAdminPassword536_ once, then property is deleted automatically.
    This refuses to overwrite an existing admin verifier. */
-function setupAdminPassword536_() {
+function setupAdminPassword536() {
   return adminWithLock536_(()=>{
     const p=PropertiesService.getScriptProperties();
     if(p.getProperty('ADMIN_PASSWORD_HASH_536'))
