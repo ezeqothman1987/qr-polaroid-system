@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fff1dc"><meta name="referrer" content="no-referrer"><title>QR Polaroid — Detik Ceria</title>
+<style>
+:root{
+  font-family:ui-rounded,"Segoe UI",system-ui,-apple-system,sans-serif;
+  color:#263652;color-scheme:light;
+  --ink:#263652;--soft:#62728b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;padding:18px 12px 42px;overflow-x:hidden;
+  background:
+    radial-gradient(circle at 8% 10%,#ffe3b9 0,transparent 32%),
+    radial-gradient(circle at 100% 24%,#cfedff 0,transparent 38%),
+    radial-gradient(circle at 3% 90%,#f9d5ef 0,transparent 35%),
+    linear-gradient(165deg,#fff8eb,#eefaff 52%,#fef3fa);
+}
+.panel{
+  position:relative;max-width:535px;margin:12px auto;padding:25px;
+  background:rgba(255,255,255,.89);border:1px solid rgba(255,255,255,.96);
+  border-radius:29px;box-shadow:0 22px 75px #46608322,0 5px 18px #5a698b16;
+}
+.hero{display:flex;align-items:center;gap:13px}
+.brand-mark{
+  display:grid;place-items:center;flex:0 0 57px;width:57px;height:57px;
+  border-radius:18px;font-size:1.8rem;
+  background:linear-gradient(145deg,#ffd7a0,#ff91ad);box-shadow:0 7px 17px #f9b4a080;
+  transform:rotate(-7deg);
+}
+.eyebrow{font-size:.66rem;font-weight:900;letter-spacing:.16em;color:#c45884}
+h1{margin:3px 0 0;font-size:clamp(1.6rem,5.5vw,2rem);letter-spacing:-.055em;color:#263652}
+p{line-height:1.55;color:#62728b}
+.intro{font-size:.94rem;margin:15px 0 17px}
+.status{
+  display:flex;gap:10px;align-items:center;min-height:49px;
+  background:#fff3d8;border:1px solid #f8dfac;color:#785b23;
+  padding:12px 14px;border-radius:15px;font-weight:700;font-size:.89rem;
+  margin:15px 0 19px;overflow-wrap:anywhere;
+}
+.status::before{content:"⏳";flex:none}
+.status.ok{background:#dff8ee;border-color:#bcebd9;color:#1c6e57}
+.status.ok::before{content:"✓";background:#56b98e;color:#fff;display:grid;place-items:center;border-radius:50%;height:23px;width:23px}
+.status.bad{background:#ffebef;border-color:#ffc6d2;color:#ab405a}
+.status.bad::before{content:"!";background:#e8788d;color:#fff;display:grid;place-items:center;border-radius:50%;height:23px;width:23px}
+.hidden{display:none!important}
+.polaroid-stage{position:relative;max-width:418px;margin:0 auto}
+.polaroid{
+  position:relative;z-index:1;background:#fffdf6;padding:12px 12px 8px;
+  border:1px solid white;border-radius:5px;transform:rotate(-1.1deg);
+  box-shadow:0 17px 26px #1d395a30,0 7px 9px #1d395a1a;
+  margin:15px 10px 16px;animation:polaroid-enter .55s both;
+}
+.viewport{position:relative;aspect-ratio:1;background:#202537;overflow:hidden;border-radius:2px}
+.viewport video,.viewport img{width:100%;height:100%;object-fit:cover;display:block}
+.viewport video.mirror{transform:scaleX(-1)}
+.camera-hint{
+  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;gap:14px;padding:22px;
+  color:#f5f4f9;font-size:.88rem;line-height:1.6;
+  background:radial-gradient(circle at 45% 35%,#354058,#192235 85%);
+}
+.camera-hint>span:first-child{font-size:3.1rem;filter:drop-shadow(0 5px 6px #0003)}
+.camera-hint strong{color:#ffdc9d}
+.polaroid-caption{text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:79px;padding:14px 8px 4px;overflow-wrap:anywhere}
+.caption-event{font-size:1.03rem;line-height:1.25;font-weight:850;color:#2e3a51;overflow-wrap:anywhere}
+.caption-slot{font-size:.85rem;line-height:1.35;font-weight:650;color:#ab6583;margin-top:5px;overflow-wrap:anywhere}
+.decoration{position:absolute;z-index:0;pointer-events:none;color:#f89a68;font-size:2.35rem;text-shadow:0 2px 12px #fff8}
+.decoration-one{left:-6px;top:18px;transform:rotate(-17deg)}
+.decoration-two{right:-7px;bottom:14px;color:#ae7ee9;transform:rotate(14deg)}
+.caption-note{font-size:.73rem;text-align:center;color:#8490a2;margin:9px auto 21px;max-width:360px}
+.section-title{text-align:center;color:#3b5271;font-weight:850;font-size:1.06rem;margin:17px 0 13px}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;max-width:405px;margin:0 auto}
+button{
+  border:0;border-radius:16px;padding:13px 10px;min-height:55px;
+  font:750 .91rem/1.28 ui-rounded,"Segoe UI",system-ui,sans-serif;
+  color:#25364c;cursor:pointer;text-align:center;display:inline-flex;gap:7px;
+  justify-content:center;align-items:center;transition:transform .15s ease,filter .15s ease,box-shadow .15s ease;
+  box-shadow:0 6px 0 #24365018,0 10px 18px #2b4b7b18;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button span[aria-hidden]{font-size:1.18rem;line-height:1}
+#start{background:linear-gradient(135deg,#ffb09a,#f57b9b)}
+#flip{background:linear-gradient(135deg,#d7c4fc,#b8a4f2)}
+#snap{background:linear-gradient(135deg,#89e4cb,#58cddd)}
+#retake{background:linear-gradient(135deg,#ffdc9a,#ffb27d)}
+#upload{background:linear-gradient(135deg,#8be5c2,#54c7bc);width:100%;margin-top:4px}
+#retry{background:linear-gradient(135deg,#d5c2fb,#afa1e4);width:100%;margin-top:9px}
+button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.05)}
+button:active:not(:disabled){transform:translateY(1px);box-shadow:0 2px 0 #24365018}
+button:focus-visible,input:focus-visible{outline:3px solid #559bd3;outline-offset:3px}
+button:disabled{
+  background:#dce5ee!important;color:#8391a6!important;
+  box-shadow:none!important;cursor:not-allowed!important;opacity:1!important;
+  transform:none!important;filter:none!important;
+}
+.file-section{
+  margin:23px 0 0;background:#f9fbff;border:1px dashed #cbd6e8;
+  padding:17px;border-radius:20px;
+}
+label{display:block;margin:0 0 11px;color:#40546f;font-size:.94rem;font-weight:850}
+input[type=file]{display:block;width:100%;max-width:100%;background:white;color:#61718b;border:1px solid #dce5f0;border-radius:12px;padding:9px;font:inherit;font-size:.81rem}
+input[type=file]::file-selector-button{
+  background:#e4f0ff;color:#325c86;border:0;border-radius:9px;
+  padding:10px;margin-right:9px;font:inherit;font-weight:750;cursor:pointer
+}
+.small{font-size:.82rem;color:#66768c}
+#fileInfo:empty{display:none}
+#uploadNotice{margin:11px 0 15px;font-size:.75rem;color:#8a7586}
+@keyframes polaroid-enter{from{opacity:0;transform:translateY(17px) rotate(-3deg)}to{opacity:1;transform:rotate(-1.1deg)}}
+@media(max-width:420px){
+  body{padding:8px 10px 30px}.panel{margin:5px auto;padding:18px;border-radius:22px}
+  .brand-mark{width:49px;height:49px;flex-basis:49px;border-radius:15px}
+  .polaroid{margin:15px 5px 14px;padding:10px 10px 6px}
+  .polaroid-caption{min-height:74px;padding-top:12px}
+  .controls{gap:9px}button{font-size:.82rem;padding:12px 6px;min-height:51px}
+  .file-section{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}.polaroid{animation:none}
+  button{transition:none}
+}
+</style></head>
+<body>
+<main class="panel">
+  <header class="hero">
+    <div class="brand-mark" aria-hidden="true">📸</div>
+    <div><div class="eyebrow">CAPTURE THE MOMENT ✨</div><h1>QR Polaroid</h1></div>
+  </header>
+  <p class="intro">Ambil gambar, cipta kenangan dan kongsikan detik paling ceria bersama-sama! 💛</p>
+  <div id="status" class="status" role="status" aria-live="polite">Menyemak kod QR…</div>
+<section id="captureArea" class="hidden" aria-label="Kamera dan pratonton Polaroid">
+  <div class="polaroid-stage">
+    <div class="decoration decoration-one" aria-hidden="true">✦</div>
+    <div class="decoration decoration-two" aria-hidden="true">✳</div>
+    <div class="polaroid">
+      <div class="viewport">
+        <video id="camera" autoplay playsinline muted class="hidden"></video>
+        <img id="preview" class="hidden" alt="Pratonton gambar JPEG">
+        <div id="cameraHint" class="camera-hint"><span aria-hidden="true">📷</span><span>Tekan <strong>“Buka kamera”</strong><br>untuk mula mencipta kenangan.</span></div>
+      </div>
+      <div class="polaroid-caption" aria-live="polite">
+        <div id="eventName" class="caption-event">Memuatkan nama acara…</div>
+        <div id="qrLabel" class="caption-slot">Memuatkan nama QR Slot…</div>
+      </div>
+    </div>
+  </div>
+  <p class="caption-note">Nama acara dan QR Slot dipaparkan pada bingkai sahaja. Foto JPEG asal kekal tanpa tulisan.</p>
+  <div class="section-title"><span aria-hidden="true">✨</span> Jom bergambar!</div>
+  <div class="controls">
+    <button id="start" type="button"><span aria-hidden="true">📸</span> Buka kamera</button>
+    <button id="flip" type="button" class="secondary" disabled><span aria-hidden="true">🔄</span> Tukar kamera</button>
+    <button id="snap" type="button" disabled><span aria-hidden="true">✨</span> Ambil gambar</button>
+    <button id="retake" type="button" class="secondary" disabled><span aria-hidden="true">↩️</span> Ambil semula</button>
+  </div>
+  <div class="file-section">
+    <label for="jpeg">📁 Atau pilih gambar JPEG</label>
+    <input id="jpeg" type="file" accept="image/jpeg,.jpg,.jpeg">
+    <p id="fileInfo" class="small" aria-live="polite"></p>
+    <p id="uploadNotice" class="small">Sila pastikan gambar yang dipilih sesuai sebelum dihantar.</p>
+    <button id="upload" type="button" disabled><span aria-hidden="true">💌</span> Hantar gambar</button>
+    <button id="retry" type="button" class="secondary hidden" disabled><span aria-hidden="true">🔁</span> Cuba semula penghantaran</button>
+  </div>
+</section>
+<canvas id="canvas" class="hidden"></canvas></main>
+<script>
+// ---- KONFIGURASI: URL asal dikekalkan. Jangan letak password atau secret di sini. ----
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbypWTF9wRt5mCh2D8E4RPFlBXJGnkRHL1df-JAtL39mdTgPdN5aGREtlZhBsxwQSITo/exec';
+const MAX_JPEG_BYTES=8*1024*1024;
+// Keselamatan: kekal false sehingga endpoint upload_jpeg LIVE telah diuji dan diluluskan.
+const ENABLE_PUBLIC_JPEG_UPLOAD=true;
+const $=id=>document.getElementById(id);
+let qrToken='',stream=null,facing='environment',selectedBlob=null,objectUrl=null,currentKey=null,uploadBusy=false;
+const status=(msg,cls='')=>{$('status').textContent=msg;$('status').className='status '+cls;};
+function releasePreview(){currentKey=null;$('retry').classList.add('hidden');$('retry').disabled=true;$('upload').disabled=true;if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}selectedBlob=null;$('preview').removeAttribute('src');$('preview').classList.add('hidden');$('retake').disabled=true;}
+function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}$('camera').srcObject=null;$('camera').classList.add('hidden');$('snap').disabled=true;$('flip').disabled=true;}
+function displayBlob(blob){releasePreview();selectedBlob=blob;objectUrl=URL.createObjectURL(blob);$('preview').src=objectUrl;$('preview').classList.remove('hidden');$('cameraHint').classList.add('hidden');$('retake').disabled=false;$('fileInfo').textContent='JPEG tersedia: '+(blob.size/1048576).toFixed(2)+' MiB. Belum dihantar.';currentKey=crypto.randomUUID();$('upload').disabled=!ENABLE_PUBLIC_JPEG_UPLOAD;}
+// Paparan kapsyen Polaroid: teks sahaja (bukan sebahagian daripada JPEG).
+// Nama diambil terus daripada respons semakan QR sedia ada, tanpa fetch tambahan.
+function setPolaroidCaption(data){
+  const clean=(value,max)=>typeof value==='string'
+    ? value.replace(/[\u0000-\u001F\u007F]/g,' ').trim().slice(0,max)
+    : '';
+  $('eventName').textContent=clean(data?.event_name,150)||'Nama acara tidak tersedia';
+  $('qrLabel').textContent=clean(data?.qr_label,100)||'Nama QR Slot tidak tersedia';
+}
+async function checkQR(){
+  const u=new URL(location.href);
+  qrToken=u.searchParams.get('qr_token')||'';
+  u.searchParams.delete('qr_token');
+  history.replaceState(null,'',u.pathname+u.search+u.hash);
+  if(!/^[a-f0-9]{64}$/i.test(qrToken)){
+    status('Kod QR tidak sah. Sila imbas semula.','bad');
+    return;
+  }
+  try{
+    const r=await fetch(WEB_APP_URL,{
+      method:'POST',headers:{'Content-Type':'text/plain'},credentials:'omit',
+      body:JSON.stringify({action:'check_qr',qr_token:qrToken})
+    });
+    if(!r.ok)throw Error('HTTP');
+    const x=await r.json();
+    if(x?.code==='QR_AVAILABLE'&&x.data?.eligible===true&&Number.isInteger(x.data.remaining_uploads)&&x.data.remaining_uploads>0){
+      setPolaroidCaption(x.data);
+      status('QR aktif. Baki kuota: '+x.data.remaining_uploads+' gambar.','ok');
+      $('captureArea').classList.remove('hidden');
+      return;
+    }
+    const messages={
+      INVALID_QR:'Kod QR tidak sah.',
+      QR_INACTIVE:'Kod QR tidak aktif.',
+      EVENT_NOT_STARTED:'Acara belum bermula.',
+      EVENT_ENDED:'Acara telah tamat.',
+      EVENT_INACTIVE:'Acara tidak aktif.',
+      QUOTA_FULL:'Kuota gambar telah penuh.'
+    };
+    status(messages[x?.code]||'Semakan QR tidak berjaya.','bad');
+  }catch(e){
+    status('Sambungan gagal. Sila cuba lagi.','bad');
+  }
+}
+async function startCamera(){stopCamera();releasePreview();$('cameraHint').classList.add('hidden');if(!navigator.mediaDevices?.getUserMedia){$('fileInfo').textContent='Kamera tidak disokong. Sila pilih gambar JPEG.';return;}try{stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:1280}}});$('camera').srcObject=stream;$('camera').classList.remove('hidden');$('camera').classList.toggle('mirror',facing==='user');await $('camera').play();$('snap').disabled=false;$('flip').disabled=false;$('fileInfo').textContent='Kamera sedia. Ambil gambar apabila bersedia.';}catch(e){$('fileInfo').textContent='Kamera tidak dapat dibuka. Benarkan akses kamera atau pilih fail JPEG.';}}
+$('start').onclick=startCamera;
+$('flip').onclick=()=>{facing=facing==='environment'?'user':'environment';startCamera();};
+$('snap').onclick=()=>{const v=$('camera');if(!v.videoWidth||!v.videoHeight)return;const side=Math.min(v.videoWidth,v.videoHeight);const c=$('canvas');c.width=1000;c.height=1000;const ctx=c.getContext('2d');const sx=(v.videoWidth-side)/2,sy=(v.videoHeight-side)/2;if(facing==='user'){ctx.translate(1000,0);ctx.scale(-1,1);}ctx.drawImage(v,sx,sy,side,side,0,0,1000,1000);c.toBlob(b=>{if(!b){$('fileInfo').textContent='Gagal memproses JPEG.';return;}if(b.size>MAX_JPEG_BYTES){$('fileInfo').textContent='JPEG melebihi 8 MiB.';return;}stopCamera();displayBlob(b);},'image/jpeg',0.85);};
+$('retake').onclick=()=>{releasePreview();startCamera();};
+$('jpeg').onchange=async()=>{const f=$('jpeg').files?.[0];if(!f)return;if(f.size<4||f.size>MAX_JPEG_BYTES||f.type!=='image/jpeg'){$('fileInfo').textContent='Sila pilih JPEG sah maksimum 8 MiB.';return;}const head=new Uint8Array(await f.slice(0,3).arrayBuffer());const tail=new Uint8Array(await f.slice(-2).arrayBuffer());if(head[0]!==255||head[1]!==216||head[2]!==255||tail[0]!==255||tail[1]!==217){$('fileInfo').textContent='Kandungan JPEG tidak sah.';return;}stopCamera();displayBlob(f);};
+// ---- Upload sebenar: terkunci sehingga backend 5.13 siap dan disahkan. ----
+// Kekalkan UUID yang sama bagi retry fail yang sama untuk idempotency.
+function toBase64(bytes){let binary='';const chunk=16384;for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}return btoa(binary);}
+async function sendJpeg(){
+  if(!ENABLE_PUBLIC_JPEG_UPLOAD||uploadBusy||!selectedBlob||!currentKey)return;
+  uploadBusy=true;$('upload').disabled=true;$('retry').disabled=true;
+  $('fileInfo').textContent='Menghantar JPEG… Jangan tutup halaman ini.';
+  try{
+    const bytes=new Uint8Array(await selectedBlob.arrayBuffer());
+    if(bytes.length<4||bytes.length>MAX_JPEG_BYTES||bytes[0]!==255||bytes[1]!==216||bytes[2]!==255||bytes.at(-2)!==255||bytes.at(-1)!==217)throw Error('INVALID_JPEG');
+    const body={action:'upload_jpeg',qr_token:qrToken,idempotency_key:currentKey,original_filename:'polaroid_'+currentKey+'.jpg',file_mime_type:'image/jpeg',file_size_bytes:bytes.length,jpeg_base64:toBase64(bytes)};
+    const r=await fetch(WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},credentials:'omit',body:JSON.stringify(body)});
+    if(!r.ok)throw Error('NETWORK');
+    const x=await r.json();
+    if(x?.code==='UPLOAD_COMPLETED'&&x?.status==='SUCCESS'){
+      $('fileInfo').textContent='Gambar berjaya dihantar.';
+      $('retry').classList.add('hidden');
+      currentKey=null;stopCamera();releasePreview();
+      status('Gambar berjaya dihantar!','ok');
+      return;
+    }
+    if(x?.code==='UPLOAD_PROCESSING'){
+      $('fileInfo').textContent='Upload sedang diproses. Jangan ambil gambar baharu; cuba semula menggunakan butang di bawah.';
+    }else{
+      $('fileInfo').textContent='Upload belum disahkan ('+String(x?.code||'UNKNOWN').slice(0,60)+'). Cuba semula menggunakan gambar yang sama.';
+    }
+  }catch(_){$('fileInfo').textContent='Sambungan terganggu atau respons tidak pasti. Cuba semula menggunakan gambar yang sama.';}
+  finally{uploadBusy=false;if(currentKey){$('retry').classList.remove('hidden');$('retry').disabled=!ENABLE_PUBLIC_JPEG_UPLOAD;$('upload').disabled=!ENABLE_PUBLIC_JPEG_UPLOAD;}}
+}
+$('upload').onclick=sendJpeg;
+$('retry').onclick=sendJpeg;
+window.addEventListener('pagehide',()=>{stopCamera();releasePreview();});
+checkQR();
+</script></body></html>
